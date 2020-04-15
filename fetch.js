@@ -23,7 +23,6 @@ function touchHandler(event)
                                   false, false, false, 0/*left*/, null);
 
     first.target.dispatchEvent(simulatedEvent);
-    event.preventDefault();
 }
 
 document.addEventListener("touchstart", touchHandler, true);
@@ -171,7 +170,7 @@ class FetchBall {
         document.body.appendChild(this.el);
         this.setPos(window.innerWidth / 2, window.innerHeight / 2);
 
-        this.mouseStack = new WrapStack(10);
+        this.mouseStack = new WrapStack(3);
 
         this.eventBallRelease = [];
 
@@ -196,7 +195,8 @@ class FetchBall {
                 if (oldest) {
                     const now = Date.now();
                     const deltaTime = now - oldest.date;
-                    this.velocity = new Vector((e.clientX - oldest.x) / deltaTime * 6, (e.clientY - oldest.y) / deltaTime * 6);
+                    const oomph = 20;
+                    this.velocity = new Vector((e.clientX - oldest.x) / deltaTime * oomph, (e.clientY - oldest.y) / deltaTime * oomph);
                 }
                 for (const func of this.eventBallRelease) {
                     func();
