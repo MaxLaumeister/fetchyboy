@@ -31,6 +31,28 @@ window.FetchAnimations = {
     }
 };
 
+class WrapStack {
+    constructor(max) {
+        this.stack = [];
+        this.oldest = 0;
+        this.max = max;
+    }
+
+    push(point) {
+        if (this.stack.length < this.max) {
+            this.stack.push(point);
+        } else {
+            this.stack[this.oldest] = point;
+            this.oldest++;
+            if (this.oldest >= this.stack.length) this.oldest = 0;
+        }
+    }
+
+    getOldest() {
+        return this.stack[this.oldest];
+    }
+}
+
 class FetchAnimator {
     constructor(el, url, sswidthpx, ssheightpx, xcount, ycount) {
         this.timeout = null;
@@ -110,12 +132,9 @@ class FetchBall {
         this.el.style.height = this.height + "px";
         this.el.style.borderRadius = "50%";
         document.body.appendChild(this.el);
-        this.setPos(window.innerWidth / 4, window.innerHeight / 4);
+        this.setPos(window.innerWidth / 2, window.innerHeight / 2);
 
-        this.mousex = 0;
-        this.mousey = 0;
-        this.lastmousex = 0;
-        this.lastmousey = 0;
+        this.mouseStack = new WrapStack(10);
 
         this.eventBallRelease = [];
 
@@ -125,10 +144,9 @@ class FetchBall {
 
         this.el.addEventListener("mousedown", (e) => {
             const moveFunc = (e) => {
-                this.lastmousex = this.mousex;
-                this.lastmousey = this.mousey;
                 this.mousex = e.clientX;
                 this.mousey = e.clientY;
+                this.mouseStack.push({x: e.clientX, y: e.clientY, date: Date.now()});
                 this.setPos(e.clientX, e.clientY);
             };
             console.log("click");
@@ -139,7 +157,12 @@ class FetchBall {
                 this.mousedown = false;
                 window.removeEventListener("mousemove", moveFunc);
                 // Process release
-                this.velocity = new Vector(e.clientX - this.lastmousex, e.clientY - this.lastmousey);
+                const oldest = this.mouseStack.getOldest();
+                if (oldest) {
+                    const now = Date.now();
+                    const deltaTime = now - oldest.date;
+                    this.velocity = new Vector((e.clientX - oldest.x) / deltaTime * 6, (e.clientY - oldest.y) / deltaTime * 6);
+                }
                 for (const func of this.eventBallRelease) {
                     func();
                 }
@@ -158,6 +181,23 @@ class FetchBall {
 
     doFrame() {
         if (this.mouseDown) return;
+
+        const damping = 0.8;
+
+        // Bounce
+        if (this.x > window.innerWidth) {
+            this.velocity.x = damping * -Math.abs(this.velocity.x);
+        } else if (this.x < 0) {
+            this.velocity.x = damping * Math.abs(this.velocity.x);
+        }
+        if (this.y > window.innerHeight) {
+            this.velocity.y = damping * -Math.abs(this.velocity.y);
+        }
+        if (this.y < 0) {
+            this.velocity.y = damping * Math.abs(this.velocity.y);
+        }
+
+        // Process
         this.setPos(this.x + this.velocity.x, this.y + this.velocity.y);
         this.velocity.multiply(0.99);
         if (this.velocity.length() < 0.25) this.velocity = new Vector(0, 0);
@@ -173,7 +213,6 @@ class FetchDog {
         this.el.className = "fetch-dog";
         this.el.style.position = "absolute";
         document.body.appendChild(this.el);
-        this.setPos(window.innerWidth / 2, window.innerHeight / 2);
         console.log(this);
         this.animator = new FetchAnimator(this.el, "dog.png", 128, 288, 4, 9);
         this.lastTime = Date.now();
@@ -196,6 +235,7 @@ class FetchDog {
         this.minSpeed = 2;
         this.speed = 0;
         this.acceleration = 0.2;
+        this.setPos(this.marker.x, this.marker.y - 200);
         this.doFrame();
     }
 
