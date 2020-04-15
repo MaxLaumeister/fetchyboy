@@ -47,9 +47,9 @@ class FetchAnimator {
     }
 
     playAnimation(ani, mirrored = false) {
-        if (this.currentAnimation === ani) return;
         if (mirrored) this.el.style.transform = "scale(-1, 1)";
         else this.el.style.transform = "none";
+        if (this.currentAnimation === ani) return;
         function doTimeout() {
             this.showFrame(frames[this.currentFrame].i);
             this.timeout = setTimeout(doTimeout.bind(this), frames[this.currentFrame].d);
@@ -88,6 +88,7 @@ class FetchDog {
         this.setPos(window.innerWidth / 2, window.innerHeight / 2);
         console.log(this);
         this.animator = new FetchAnimator(this.el, "dog.png", 128, 288, 4, 9);
+        this.lastTime = Date.now();
 
         document.body.addEventListener("mousemove", (e) => {
             this.mousex = e.clientX;
@@ -110,6 +111,8 @@ class FetchDog {
     doFrame() {
         let directionVector = new Vector(this.mousex - this.x, this.mousey - this.y);
         if (directionVector.length() > this.maxSpeed) {
+            const currentTime = Date.now();
+            const deltaTime = currentTime - this.lastTime;
             directionVector.normalize();
             const angle = directionVector.toAngles();
             if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
@@ -120,11 +123,10 @@ class FetchDog {
                 this.animator.playAnimation(FetchAnimations.walkRight, true);
             } else if (angle < -Math.PI / 4 && angle > -3 * Math.PI / 4) {
                 this.animator.playAnimation(FetchAnimations.walkUp, true);
-            } else {
-                this.animator.stopAnimation();
             }
-            this.setPos(this.x + directionVector.x * this.speed, this.y + directionVector.y * this.speed);
+            this.setPos(this.x + directionVector.x * this.speed * (deltaTime / 17), this.y + directionVector.y * this.speed * (deltaTime / 17));
             this.speed = Math.min(this.speed + this.acceleration, this.maxSpeed);
+            this.lastTime = currentTime;
         } else {
             this.speed = 0;
             this.animator.stopAnimation();
