@@ -164,12 +164,10 @@ class FetchBall {
         this.el = document.createElement("div");
         this.el.className = "fetch-ball";
         this.el.style.position = "absolute";
-        this.el.style.background = "red";
-        this.width = 30;
-        this.height = 30;
+        this.width = 70;
+        this.height = 70;
         this.el.style.width = this.width + "px";
         this.el.style.height = this.height + "px";
-        this.el.style.borderRadius = "50%";
         document.body.appendChild(this.el);
         this.setPos(window.innerWidth / 2, window.innerHeight / 2);
 
