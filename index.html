@@ -60,6 +60,18 @@
         right: 0;
       }
     </style>
+    <script>
+      // If there is no trailing slash after the path in the url, add it
+      // Workaround for Netlify trailing-slash rewrite issue
+      // https://community.netlify.com/t/bug-in-non-trailing-slash-rewrite/452/23
+      if (!window.location.pathname.endsWith('/') && !window.location.pathname.split("/").pop().includes(".")) {
+        var url = window.location.protocol + '//' +
+          window.location.host +
+          window.location.pathname + '/' +
+          window.location.search;
+          window.history.replaceState(null, document.title, url);
+      }
+    </script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-24440376-11"></script>
     <script>
