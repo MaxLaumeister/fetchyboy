@@ -285,21 +285,29 @@ class FetchDog {
             const deltaTime = currentTime - this.lastTime;
             directionVector.normalize();
             const angle = directionVector.toAngles();
+            let ballOffset = {x: 0, y: 0};
             if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
+                this.ball.el.style.zIndex = "3";
+                ballOffset = {x: 25, y: 15};
                 this.animator.playAnimation(FetchAnimations.walkRight);
             } else if (angle > Math.PI / 4 && angle < 3 * Math.PI / 4) {
+                this.ball.el.style.zIndex = "3";
+                ballOffset = {x: 0, y: 25};
                 this.animator.playAnimation(FetchAnimations.walkDown);
             } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
+                this.ball.el.style.zIndex = "3";
+                ballOffset = {x: -25, y: 15};
                 this.animator.playAnimation(FetchAnimations.walkRight, true);
             } else if (angle < -Math.PI / 4 && angle > -3 * Math.PI / 4) {
+                this.ball.el.style.zIndex = "1";
+                ballOffset = {x: 0, y: 0};
                 this.animator.playAnimation(FetchAnimations.walkUp);
             }
             this.setPos(this.x + directionVector.x * this.speed * (deltaTime / 17), this.y + directionVector.y * this.speed * (deltaTime / 17));
             this.speed = Math.min(this.speed + this.acceleration, this.maxSpeed);
             this.lastTime = currentTime;
             if (this.holding === this.ball) {
-                this.ball.x = this.x;
-                this.ball.y = this.y;
+                this.ball.setPos(this.x + ballOffset.x, this.y + ballOffset.y);
             }
         } else {
             // Reached target
@@ -311,8 +319,7 @@ class FetchDog {
             } else if (this.target === this.marker && this.holding === this.ball) {
                 this.holding = null;
                 this.ball.velocity = new Vector(0, 0);
-                this.ball.x = this.marker.x;
-                this.ball.y = this.marker.y + 45;
+                this.ball.setPos(this.marker.x, this.marker.y + 45);
             }
         }
         requestAnimationFrame(this.doFrame.bind(this));
