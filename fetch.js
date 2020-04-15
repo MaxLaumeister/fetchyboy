@@ -1,3 +1,38 @@
+// https://stackoverflow.com/a/1781750/2234742
+function touchHandler(event)
+{
+    var touches = event.changedTouches,
+        first = touches[0],
+        type = "";
+    switch(event.type)
+    {
+        case "touchstart": type = "mousedown"; break;
+        case "touchmove":  type = "mousemove"; break;        
+        case "touchend":   type = "mouseup";   break;
+        default:           return;
+    }
+
+    // initMouseEvent(type, canBubble, cancelable, view, clickCount, 
+    //                screenX, screenY, clientX, clientY, ctrlKey, 
+    //                altKey, shiftKey, metaKey, button, relatedTarget);
+
+    var simulatedEvent = document.createEvent("MouseEvent");
+    simulatedEvent.initMouseEvent(type, true, true, window, 1, 
+                                  first.screenX, first.screenY, 
+                                  first.clientX, first.clientY, false, 
+                                  false, false, false, 0/*left*/, null);
+
+    first.target.dispatchEvent(simulatedEvent);
+    event.preventDefault();
+}
+
+document.addEventListener("touchstart", touchHandler, true);
+document.addEventListener("touchmove", touchHandler, true);
+document.addEventListener("touchend", touchHandler, true);
+document.addEventListener("touchcancel", touchHandler, true);
+
+// fetchyboy
+
 window.FetchAnimations = {
     walkRight: {
         frames: [
@@ -110,7 +145,11 @@ class FetchMarker {
         this.el.style.width = this.width + "px";
         this.el.style.height = this.height + "px";
         document.body.appendChild(this.el);
-        this.setPos(window.innerWidth / 2, 3 * window.innerHeight / 4);
+        this.recenter = () => {
+            this.setPos(window.innerWidth / 2, 3 * window.innerHeight / 4);
+        };
+        this.recenter();
+        window.addEventListener('resize', this.recenter);
     }
 
     setPos(newx, newy) {
@@ -149,11 +188,9 @@ class FetchBall {
                 this.mouseStack.push({x: e.clientX, y: e.clientY, date: Date.now()});
                 this.setPos(e.clientX, e.clientY);
             };
-            console.log("click");
             this.mousedown = true;
             window.addEventListener("mousemove", moveFunc);
             window.addEventListener("mouseup", (e) => {
-                console.log("unclick");
                 this.mousedown = false;
                 window.removeEventListener("mousemove", moveFunc);
                 // Process release
@@ -166,7 +203,6 @@ class FetchBall {
                 for (const func of this.eventBallRelease) {
                     func();
                 }
-                console.log(this.velocity);
             }, { once: true });
         });
 
@@ -213,7 +249,6 @@ class FetchDog {
         this.el.className = "fetch-dog";
         this.el.style.position = "absolute";
         document.body.appendChild(this.el);
-        console.log(this);
         this.animator = new FetchAnimator(this.el, "dog.png", 128, 288, 4, 9);
         this.lastTime = Date.now();
         this.ball = ball;
