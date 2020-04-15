@@ -292,7 +292,7 @@ class FetchDog {
             } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
                 this.animator.playAnimation(FetchAnimations.walkRight, true);
             } else if (angle < -Math.PI / 4 && angle > -3 * Math.PI / 4) {
-                this.animator.playAnimation(FetchAnimations.walkUp, true);
+                this.animator.playAnimation(FetchAnimations.walkUp);
             }
             this.setPos(this.x + directionVector.x * this.speed * (deltaTime / 17), this.y + directionVector.y * this.speed * (deltaTime / 17));
             this.speed = Math.min(this.speed + this.acceleration, this.maxSpeed);
