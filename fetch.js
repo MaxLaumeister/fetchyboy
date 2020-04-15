@@ -261,6 +261,16 @@ class FetchDog {
             this.target = this.ball;
         });
 
+        let doneResizing = () => {
+            this.target = this.ball;
+        }
+        let resizeId;
+        window.addEventListener('resize', function() {
+            this.target = null;
+            clearTimeout(resizeId);
+            resizeId = setTimeout(doneResizing, 500);
+        });
+
         this.target = this.marker;
         this.holding = null;
 
@@ -279,47 +289,52 @@ class FetchDog {
     }
 
     doFrame() {
-        let directionVector = new Vector(this.target.x - this.x, this.target.y - this.y);
-        if (directionVector.length() > this.maxSpeed) {
-            const currentTime = Date.now();
-            const deltaTime = currentTime - this.lastTime;
-            directionVector.normalize();
-            const angle = directionVector.toAngles();
-            let ballOffset = {x: 0, y: 0};
-            if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
-                this.ball.el.style.zIndex = "3";
-                ballOffset = {x: 25, y: 15};
-                this.animator.playAnimation(FetchAnimations.walkRight);
-            } else if (angle > Math.PI / 4 && angle < 3 * Math.PI / 4) {
-                this.ball.el.style.zIndex = "3";
-                ballOffset = {x: 0, y: 25};
-                this.animator.playAnimation(FetchAnimations.walkDown);
-            } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
-                this.ball.el.style.zIndex = "3";
-                ballOffset = {x: -25, y: 15};
-                this.animator.playAnimation(FetchAnimations.walkRight, true);
-            } else if (angle < -Math.PI / 4 && angle > -3 * Math.PI / 4) {
-                this.ball.el.style.zIndex = "1";
-                ballOffset = {x: 0, y: 0};
-                this.animator.playAnimation(FetchAnimations.walkUp);
-            }
-            this.setPos(this.x + directionVector.x * this.speed * (deltaTime / 17), this.y + directionVector.y * this.speed * (deltaTime / 17));
-            this.speed = Math.min(this.speed + this.acceleration, this.maxSpeed);
-            this.lastTime = currentTime;
-            if (this.holding === this.ball) {
-                this.ball.setPos(this.x + ballOffset.x, this.y + ballOffset.y);
-            }
-        } else {
-            // Reached target
-            this.speed = 0;
-            this.animator.playAnimation(FetchAnimations.idle);
-            if (this.target === this.ball) {
-                this.holding = this.ball;
-                this.target = this.marker;
-            } else if (this.target === this.marker && this.holding === this.ball) {
-                this.holding = null;
-                this.ball.velocity = new Vector(0, 0);
-                this.ball.setPos(this.marker.x, this.marker.y + 45);
+        if (this.target) {
+            let directionVector = new Vector(this.target.x - this.x, this.target.y - this.y);
+            if (directionVector.length() > this.maxSpeed) {
+                const currentTime = Date.now();
+                const deltaTime = currentTime - this.lastTime;
+                directionVector.normalize();
+                const angle = directionVector.toAngles();
+                let ballOffset = {x: 0, y: 0};
+                if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
+                    this.ball.el.style.zIndex = "3";
+                    ballOffset = {x: 25, y: 15};
+                    this.animator.playAnimation(FetchAnimations.walkRight);
+                } else if (angle > Math.PI / 4 && angle < 3 * Math.PI / 4) {
+                    this.ball.el.style.zIndex = "3";
+                    ballOffset = {x: 0, y: 25};
+                    this.animator.playAnimation(FetchAnimations.walkDown);
+                } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
+                    this.ball.el.style.zIndex = "3";
+                    ballOffset = {x: -25, y: 15};
+                    this.animator.playAnimation(FetchAnimations.walkRight, true);
+                } else if (angle < -Math.PI / 4 && angle > -3 * Math.PI / 4) {
+                    this.ball.el.style.zIndex = "1";
+                    ballOffset = {x: 0, y: 0};
+                    this.animator.playAnimation(FetchAnimations.walkUp);
+                }
+                this.setPos(this.x + directionVector.x * this.speed * (deltaTime / 17), this.y + directionVector.y * this.speed * (deltaTime / 17));
+                this.speed = Math.min(this.speed + this.acceleration, this.maxSpeed);
+                this.lastTime = currentTime;
+                if (this.holding === this.ball) {
+                    this.ball.setPos(this.x + ballOffset.x, this.y + ballOffset.y);
+                }
+            } else {
+                // Reached target
+                this.speed = 0;
+                this.animator.playAnimation(FetchAnimations.idle);
+                if (this.target === this.ball) {
+                    this.holding = this.ball;
+                    this.target = this.marker;
+                } else if (this.target === this.marker && this.holding === this.ball) {
+                    this.holding = null;
+                    this.ball.velocity = new Vector(0, 0);
+                    this.ball.setPos(this.marker.x, this.marker.y + 45);
+                    this.target = null;
+                } else {
+                    this.target = null;
+                }
             }
         }
         requestAnimationFrame(this.doFrame.bind(this));
