@@ -1,13 +1,12 @@
-# fetchydog
+# fetchyboy
 
 a javascript shitpost by yours truly
 
-![](doinafetch.gif)
-
-the dog fetches. yes
-
+<table><tr><td>
+  <a href="https://www.maxlaumeister.com/fetchyboy/"><img src="doinafetch.gif" /></a>
+</td></tr></table>
 todo:
 
-* why am i not doing something more meaningful with my life
+* why am i not doing something more meaningful
 * why dont i have a real dog
-* why does he just leave sometimes (issue #1)
+* why does he just leave sometimes (issue [#1](https://github.com/MaxLaumeister/fetchyboy/issues/1))
