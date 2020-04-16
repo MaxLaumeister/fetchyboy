@@ -231,6 +231,19 @@ class FetchBall {
             this.velocity.y = damping * Math.abs(this.velocity.y);
         }
 
+        // Corral (needed for window resize)
+        if (this.x > window.innerWidth) {
+            this.x = window.innerWidth;
+        } else if (this.x < 0) {
+            this.x = 0;
+        }
+        if (this.y > window.innerHeight) {
+            this.y = window.innerHeight;
+        }
+        if (this.y < 0) {
+            this.y = 0;
+        }
+
         // Process
         this.setPos(this.x + this.velocity.x, this.y + this.velocity.y);
         this.velocity.multiply(0.99);
@@ -241,8 +254,6 @@ class FetchBall {
 
 class FetchDog {
     constructor(ball, marker) {
-        this.mousex = 0;
-        this.mousey = 0;
         this.el = document.createElement("div");
         this.el.className = "fetch-dog";
         this.el.style.position = "absolute";
@@ -252,17 +263,12 @@ class FetchDog {
         this.ball = ball;
         this.marker = marker;
 
-        document.body.addEventListener("mousemove", (e) => {
-            this.mousex = e.clientX;
-            this.mousey = e.clientY;
-        });
-
         this.ball.eventBallRelease.push(() => {
             this.target = this.ball;
         });
 
         let doneResizing = () => {
-            this.target = this.ball;
+            if (this.holding !== this.ball) this.target = this.ball;
         }
         let resizeId;
         window.addEventListener('resize', function() {
@@ -289,6 +295,19 @@ class FetchDog {
     }
 
     doFrame() {
+        // Corral
+        if (this.x > window.innerWidth) {
+            this.x = window.innerWidth;
+        } else if (this.x < 0) {
+            this.x = 0;
+        }
+        if (this.y > window.innerHeight) {
+            this.y = window.innerHeight;
+        }
+        if (this.y < 0) {
+            this.y = 0;
+        }
+        
         if (this.target) {
             let directionVector = new Vector(this.target.x - this.x, this.target.y - this.y);
             if (directionVector.length() > this.maxSpeed) {
