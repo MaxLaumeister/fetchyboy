@@ -1,6 +1,6 @@
 # fetchyboy
 
-a javascript shitpost by yours truly
+a javascript s**tpost by yours truly
 
 <table><tr><td>
   <a href="https://www.maxlaumeister.com/fetchyboy/"><img src="doinafetch.gif" /></a>
