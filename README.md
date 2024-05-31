@@ -3,7 +3,7 @@
 a javascript s**tpost by yours truly
 
 <table><tr><td>
-  <a href="https://www.maxlaumeister.com/fetchyboy/"><img src="doinafetch.gif" /></a>
+  <a href="https://fetchyboy.maxlaumeister.com/"><img src="doinafetch.gif" /></a>
 </td></tr></table>
 todo:
 
